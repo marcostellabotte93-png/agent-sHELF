@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "agent-shelf": {
+      "type": "http",
+      "url": "http://localhost:8000/mcp"
+    }
+  }
+}

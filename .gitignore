@@ -3,3 +3,7 @@ mcp-server/.env
 .env
 .env.*
 !.env.example
+
+# VS Code — committa solo mcp.json, ignora il resto
+.vscode/*
+!.vscode/mcp.json
