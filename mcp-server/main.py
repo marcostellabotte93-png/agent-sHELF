@@ -83,17 +83,23 @@ async def configure_workspace(agent_id: str, workspace_path: str, credentials: d
     della cartella di lavoro corrente, evitando la configurazione manuale.
 
     Usare questo tool subito dopo get_agent quando mcp_servers non è vuoto.
-    workspace_path è il path assoluto della cartella root del progetto corrente.
 
-    WORKFLOW CREDENZIALI — seguire sempre questo ordine:
-    1. Leggere env_required dalla risposta di get_agent
+    COME RICAVARE workspace_path:
+    - Il path deve essere nel formato del container: /workspaces/<nome-cartella>
+    - Prendi il nome della cartella root del workspace VS Code corrente
+      (es. se VS Code ha aperto "C:\\progetti\\my-app", il nome è "my-app")
+    - Il path da usare è sempre "/workspaces/<nome-cartella>"
+      (es. "/workspaces/my-app")
+    - Se il tool risponde con status "error" e un suggested_path, richiama
+      immediatamente il tool con suggested_path come workspace_path.
+
+    WORKFLOW COMPLETO — eseguire sempre in questo ordine:
+    1. Chiamare get_agent(id) → leggere env_required e mcp_servers
     2. Se env_required non è vuoto, chiedere all'utente i valori nel chat
-       (es. "Per configurare Looker ho bisogno di LOOKER_CLIENT_ID e LOOKER_CLIENT_SECRET")
-    3. Chiamare questo tool passando i valori raccolti come dizionario:
-       credentials={"LOOKER_CLIENT_ID": "valore", "LOOKER_CLIENT_SECRET": "valore"}
-    4. I valori vengono scritti in .vscode/mcp.json e .vscode/mcp.json viene
-       aggiunto automaticamente al .gitignore del workspace
-    5. Comunicare all'utente di eseguire 'MCP: List Servers' per attivare il server
+    3. Chiamare questo tool con workspace_path="/workspaces/<nome-cartella>"
+       e credentials={"VAR": "valore", ...}
+    4. Se status="error", ritentare con suggested_path dalla risposta
+    5. Comunicare all'utente: "Esegui 'MCP: List Servers' dal Command Palette"
 
     Se credentials è omesso, VS Code userà ${input:...} e chiederà i valori
     al primo avvio salvandoli nel keychain del SO.
