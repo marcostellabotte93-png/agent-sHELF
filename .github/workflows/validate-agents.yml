@@ -1,0 +1,55 @@
+name: Validate agents
+
+on:
+  pull_request:
+    paths:
+      - 'agents/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate agent.json files
+        run: |
+          python3 << 'EOF'
+          import json, sys, pathlib
+
+          REQUIRED_FIELDS = ["id", "name", "version", "category", "description", "author", "skills"]
+          errors = []
+
+          for agent_dir in pathlib.Path("agents").iterdir():
+              if not agent_dir.is_dir():
+                  continue
+              manifest_path = agent_dir / "agent.json"
+              if not manifest_path.exists():
+                  errors.append(f"{agent_dir.name}: agent.json mancante")
+                  continue
+              try:
+                  m = json.loads(manifest_path.read_text())
+              except json.JSONDecodeError as e:
+                  errors.append(f"{agent_dir.name}: agent.json non è JSON valido — {e}")
+                  continue
+
+              for field in REQUIRED_FIELDS:
+                  if field not in m:
+                      errors.append(f"{agent_dir.name}: campo obbligatorio mancante: {field}")
+
+              if m.get("id") != agent_dir.name:
+                  errors.append(f"{agent_dir.name}: id '{m.get('id')}' non corrisponde al nome cartella")
+
+              for skill_path in m.get("skills", {}).get("core", []) + m.get("skills", {}).get("extended", []):
+                  full = agent_dir / skill_path
+                  if not full.exists():
+                      errors.append(f"{agent_dir.name}: file skill non trovato: {skill_path}")
+
+          if errors:
+              print("ERRORI DI VALIDAZIONE:")
+              for e in errors:
+                  print(f"  x {e}")
+              sys.exit(1)
+          else:
+              count = sum(1 for d in pathlib.Path("agents").iterdir() if d.is_dir())
+              print(f"Tutti gli agenti sono validi ({count} agenti)")
+          EOF

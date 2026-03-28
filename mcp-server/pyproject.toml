@@ -1,0 +1,21 @@
+[project]
+name = "agent-shelf-mcp"
+version = "1.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=2.0",
+    "httpx>=0.27",
+    "pydantic-settings>=2.0",
+    "uvicorn[standard]>=0.29",
+]
+
+[project.scripts]
+agent-shelf = "main:run"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["main"]
+packages = ["providers", "tools"]

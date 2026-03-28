@@ -1,0 +1,24 @@
+{
+  "id": "looker-analyst",
+  "name": "Looker Analyst",
+  "version": "1.0.0",
+  "category": "analytics",
+  "description": "Analisi dati su Looker con focus su metriche business",
+  "author": "team-it",
+  "skills": {
+    "core": ["system-prompt.md"],
+    "extended": [
+      "skills/looker-usage.md",
+      "skills/metrics-guide.md"
+    ]
+  },
+  "mcp_servers": [
+    {
+      "name": "looker",
+      "command": "npx",
+      "args": ["-y", "looker-mcp-server"],
+      "env_required": ["LOOKER_URL", "LOOKER_CLIENT_ID", "LOOKER_SECRET"],
+      "env_optional": {"LOOKER_TIMEOUT": "30"}
+    }
+  ]
+}

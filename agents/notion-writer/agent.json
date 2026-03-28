@@ -1,0 +1,29 @@
+{
+  "id": "notion-writer",
+  "name": "Notion Writer",
+  "version": "1.0.0",
+  "category": "writing",
+  "description": "Creazione e aggiornamento di pagine Notion con struttura coerente",
+  "author": "team-it",
+  "skills": {
+    "core": ["system-prompt.md"],
+    "extended": [
+      "skills/notion-structure.md",
+      "skills/writing-style.md"
+    ]
+  },
+  "mcp_servers": [
+    {
+      "name": "notion",
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp",
+      "auth": {
+        "type": "bearer",
+        "header": "Authorization",
+        "env": "NOTION_API_KEY"
+      },
+      "env_required": ["NOTION_API_KEY"],
+      "env_optional": {}
+    }
+  ]
+}
