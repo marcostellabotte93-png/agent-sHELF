@@ -1,0 +1,87 @@
+import json
+import os
+from pathlib import Path
+from providers.base import GitProvider
+from tools.get_agent import _build_vscode_mcp_config
+
+
+async def configure_workspace(
+    provider: GitProvider,
+    agent_id: str,
+    workspace_path: str,
+) -> str:
+    """
+    Scrive la configurazione MCP dell'agente nel file .vscode/mcp.json
+    della cartella di lavoro corrente, evitando la configurazione manuale.
+
+    Usare questo tool subito dopo get_agent quando mcp_servers non è vuoto,
+    passando come workspace_path la cartella root del progetto corrente.
+
+    Comportamento:
+    - Se .vscode/mcp.json non esiste, lo crea con la configurazione dell'agente
+    - Se esiste già, aggiunge/aggiorna solo il server dell'agente senza toccare
+      gli altri server già presenti (merge non distruttivo)
+    - Restituisce il contenuto scritto e il path del file
+
+    Nota: per server stdio, VS Code richiede un reload dei server MCP dopo
+    la scrittura del file (Command Palette → "MCP: List Servers").
+    Per server HTTP la rilevazione è automatica.
+    """
+    raw_manifest = await provider.get_file(f"agents/{agent_id}/agent.json")
+    manifest = json.loads(raw_manifest)
+
+    mcp_servers = manifest.get("mcp_servers", [])
+    if not mcp_servers:
+        return json.dumps({
+            "status": "skipped",
+            "reason": f"L'agente '{agent_id}' non richiede server MCP esterni.",
+        }, ensure_ascii=False, indent=2)
+
+    new_config = _build_vscode_mcp_config(mcp_servers)
+
+    # Rimuove il _note dai server stdio prima di scrivere
+    for server in new_config.get("servers", {}).values():
+        server.pop("_note", None)
+
+    vscode_dir = Path(workspace_path) / ".vscode"
+    mcp_json_path = vscode_dir / "mcp.json"
+
+    # Merge non distruttivo con configurazione esistente
+    existing: dict = {"servers": {}}
+    if mcp_json_path.exists():
+        try:
+            existing = json.loads(mcp_json_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            pass  # file corrotto → lo sovrascriviamo
+
+    merged_servers = {**existing.get("servers", {}), **new_config["servers"]}
+    merged_inputs = existing.get("inputs", [])
+    new_input_ids = {i["id"] for i in new_config.get("inputs", [])}
+    merged_inputs = [i for i in merged_inputs if i["id"] not in new_input_ids]
+    merged_inputs += new_config.get("inputs", [])
+
+    final: dict = {"servers": merged_servers}
+    if merged_inputs:
+        final["inputs"] = merged_inputs
+
+    vscode_dir.mkdir(parents=True, exist_ok=True)
+    mcp_json_path.write_text(
+        json.dumps(final, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+    needs_reload = any(
+        s.get("type", "stdio") == "stdio"
+        for s in new_config["servers"].values()
+    )
+
+    return json.dumps({
+        "status": "ok",
+        "file": str(mcp_json_path),
+        "servers_added": list(new_config["servers"].keys()),
+        "next_step": (
+            "Esegui 'MCP: List Servers' dal Command Palette di VS Code per attivare il server."
+            if needs_reload else
+            "Server HTTP rilevato automaticamente da VS Code."
+        ),
+    }, ensure_ascii=False, indent=2)

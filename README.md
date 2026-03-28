@@ -72,11 +72,19 @@ docker build -t agent-shelf-mcp:latest .
 ```bash
 docker run -d --name agent-shelf \
   -p 8000:8000 \
-  -e GIT_PROVIDER=github \
-  -e GITHUB_TOKEN=ghp_... \
-  -e GITHUB_OWNER=nome-organizzazione \
-  -e GITHUB_REPO=agent-shelf \
-  -e GITHUB_BRANCH=main \
+  --env-file mcp-server/.env \
+  -v "/path/ai/tuoi/progetti:/workspaces" \
+  agent-shelf-mcp:latest
+```
+
+Il volume `-v` monta la cartella dei tuoi progetti nel container come `/workspaces`, necessario perché il tool `configure_workspace` possa scrivere `.vscode/mcp.json` nei workspace locali.
+
+Su Windows:
+```powershell
+docker run -d --name agent-shelf `
+  -p 8000:8000 `
+  --env-file mcp-server/.env `
+  -v "C:\tuoi\progetti:/workspaces" `
   agent-shelf-mcp:latest
 ```
 

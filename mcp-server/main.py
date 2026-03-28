@@ -5,6 +5,7 @@ from providers.factory import create_provider
 from tools.list_agents import list_agents as _list_agents
 from tools.get_agent import get_agent as _get_agent
 from tools.get_skill import get_skill as _get_skill
+from tools.configure_workspace import configure_workspace as _configure_workspace
 
 mcp = FastMCP("agent-shelf")
 provider = create_provider()
@@ -44,11 +45,13 @@ async def get_agent(id: str) -> str:
        Esegui 'MCP: List Servers' dal Command Palette per attivarla."
     4. Attendere conferma dell'utente prima di procedere con la sessione.
 
-    SERVER STDIO (type: stdio o assente) — configurazione manuale:
-    1. Mostrare il blocco server estratto da vscode_mcp_config
-    2. Istruire l'utente ad aggiungerlo a ~/.vscode/mcp.json (NON a .vscode/ del workspace)
-    3. Chiedere i valori delle variabili env_required (non mostrarle nei log)
-    4. Chiedere all'utente di ricaricare i server MCP
+    SERVER STDIO (type: stdio o assente) — configurazione automatica:
+    1. Chiedere all'utente il path della cartella di lavoro corrente (workspace root)
+    2. Chiamare configure_workspace(agent_id, workspace_path) per scrivere
+       .vscode/mcp.json automaticamente senza intervento manuale dell'utente
+    3. Comunicare all'utente: "Ho scritto .vscode/mcp.json. Esegui
+       'MCP: List Servers' dal Command Palette per attivare il server Looker."
+    4. Attendere conferma prima di procedere con la sessione.
     I valori in env_optional hanno un default e non bloccano l'avvio.
     """
     return await _get_agent(provider, id)
@@ -70,7 +73,26 @@ async def get_skill(agent_id: str, skill_name: str) -> str:
 
 # ASGI app esposta per uvicorn: `uvicorn main:app --host 0.0.0.0 --port 8000`
 # L'endpoint MCP è disponibile su http://host:port/mcp (streamable-http)
-app = mcp.get_asgi_app()
+app = mcp.http_app()
+
+
+@mcp.tool()
+async def configure_workspace(agent_id: str, workspace_path: str) -> str:
+    """
+    Scrive la configurazione MCP dell'agente nel file .vscode/mcp.json
+    della cartella di lavoro corrente, evitando la configurazione manuale.
+
+    Usare questo tool subito dopo get_agent quando mcp_servers non è vuoto.
+    workspace_path è il path assoluto della cartella root del progetto corrente.
+
+    Esegue un merge non distruttivo: se .vscode/mcp.json esiste già,
+    aggiunge solo il nuovo server senza rimuovere quelli già presenti.
+
+    Dopo la chiamata, per server stdio l'utente deve eseguire
+    'MCP: List Servers' dal Command Palette di VS Code.
+    Per server HTTP il rilevamento è automatico.
+    """
+    return await _configure_workspace(provider, agent_id, workspace_path)
 
 
 def run():
