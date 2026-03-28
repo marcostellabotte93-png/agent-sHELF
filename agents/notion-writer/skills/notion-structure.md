@@ -9,7 +9,7 @@ Usa questa skill quando devi creare un documento specifico. Scegli il template c
 ```
 # [Nome Progetto]
 
-> 💡 [Una frase che descrive lo scopo e il perché del progetto]
+> 💡  [Una frase che descrive lo scopo e il perché del progetto]
 
 | Campo    | Valore                        |
 |----------|-------------------------------|
