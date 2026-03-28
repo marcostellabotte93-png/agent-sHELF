@@ -77,7 +77,7 @@ app = mcp.http_app()
 
 
 @mcp.tool()
-async def configure_workspace(agent_id: str, workspace_path: str) -> str:
+async def configure_workspace(agent_id: str, workspace_path: str, credentials: dict | None = None) -> str:
     """
     Scrive la configurazione MCP dell'agente nel file .vscode/mcp.json
     della cartella di lavoro corrente, evitando la configurazione manuale.
@@ -85,14 +85,20 @@ async def configure_workspace(agent_id: str, workspace_path: str) -> str:
     Usare questo tool subito dopo get_agent quando mcp_servers non è vuoto.
     workspace_path è il path assoluto della cartella root del progetto corrente.
 
-    Esegue un merge non distruttivo: se .vscode/mcp.json esiste già,
-    aggiunge solo il nuovo server senza rimuovere quelli già presenti.
+    WORKFLOW CREDENZIALI — seguire sempre questo ordine:
+    1. Leggere env_required dalla risposta di get_agent
+    2. Se env_required non è vuoto, chiedere all'utente i valori nel chat
+       (es. "Per configurare Looker ho bisogno di LOOKER_CLIENT_ID e LOOKER_CLIENT_SECRET")
+    3. Chiamare questo tool passando i valori raccolti come dizionario:
+       credentials={"LOOKER_CLIENT_ID": "valore", "LOOKER_CLIENT_SECRET": "valore"}
+    4. I valori vengono scritti in .vscode/mcp.json e .vscode/mcp.json viene
+       aggiunto automaticamente al .gitignore del workspace
+    5. Comunicare all'utente di eseguire 'MCP: List Servers' per attivare il server
 
-    Dopo la chiamata, per server stdio l'utente deve eseguire
-    'MCP: List Servers' dal Command Palette di VS Code.
-    Per server HTTP il rilevamento è automatico.
+    Se credentials è omesso, VS Code userà ${input:...} e chiederà i valori
+    al primo avvio salvandoli nel keychain del SO.
     """
-    return await _configure_workspace(provider, agent_id, workspace_path)
+    return await _configure_workspace(provider, agent_id, workspace_path, credentials)
 
 
 def run():
