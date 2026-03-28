@@ -14,11 +14,22 @@
   },
   "mcp_servers": [
     {
-      "name": "looker",
-      "command": "npx",
-      "args": ["-y", "looker-mcp-server"],
-      "env_required": ["LOOKER_URL", "LOOKER_CLIENT_ID", "LOOKER_SECRET"],
-      "env_optional": {"LOOKER_TIMEOUT": "30"}
+      "name": "looker-docker",
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "LOOKER_BASE_URL",
+        "-e", "LOOKER_CLIENT_ID",
+        "-e", "LOOKER_CLIENT_SECRET",
+        "-e", "LOOKER_VERIFY_SSL",
+        "looker-mcp-toolbox"
+      ],
+      "env_required": ["LOOKER_CLIENT_ID", "LOOKER_CLIENT_SECRET"],
+      "env_optional": {
+        "LOOKER_BASE_URL": "https://jakala.cloud.looker.com/",
+        "LOOKER_VERIFY_SSL": "true"
+      }
     }
   ]
 }

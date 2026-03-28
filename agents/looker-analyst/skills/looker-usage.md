@@ -4,10 +4,15 @@ Questa skill descrive come usare i tool del server MCP Looker durante una sessio
 
 ## Prerequisiti
 
-Il server MCP Looker deve essere avviato con le seguenti variabili d'ambiente configurate:
-- `LOOKER_URL`: URL dell'istanza Looker (es. `https://azienda.looker.com`)
+Il server MCP Looker gira come container Docker (`looker-mcp-toolbox`) e viene avviato da VS Code tramite la configurazione in `.vscode/mcp.json`.
+
+Variabili richieste (VS Code le chiede via input box alla prima attivazione):
 - `LOOKER_CLIENT_ID`: Client ID delle API Looker
-- `LOOKER_SECRET`: Client Secret delle API Looker
+- `LOOKER_CLIENT_SECRET`: Client Secret delle API Looker
+
+Variabili con default aziendale (non richiedono inserimento):
+- `LOOKER_BASE_URL`: `https://jakala.cloud.looker.com/`
+- `LOOKER_VERIFY_SSL`: `true`
 
 ## Tool disponibili
 
