@@ -1,5 +1,7 @@
 # agent-shelf
 
+![Agent Shelf — Powered by MCP](assets/banner.png)
+
 Libreria centralizzata di agenti AI aziendali. Ogni agente è composto da un system prompt, skills opzionali e configurazione di eventuali MCP server esterni.
 
 Un server MCP locale legge questa repository via GitHub API e la espone come tool calls a VS Code / GitHub Copilot Agent Mode.
