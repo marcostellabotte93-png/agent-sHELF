@@ -33,7 +33,7 @@ Per i dettagli di ogni agente (skills, MCP server, variabili d'ambiente) consult
 agents/
 └── <agent-id>/
     ├── agent.json          # metadati e manifest delle skills
-    ├── system-prompt.md    # istruzioni principali (sempre caricate)
+    ├── agent.md            # system prompt nel formato custom agent (frontmatter YAML + body)
     └── skills/
         └── <skill>.md     # conoscenza specializzata (caricata on-demand)
 
@@ -62,8 +62,9 @@ mcp-server/
   "category": "string",         // es. engineering, analytics, writing
   "description": "string",
   "author": "string",
+  "format": "custom-agent",     // "custom-agent" o "standard"; default: "standard"
   "skills": {
-    "core": ["system-prompt.md"],          // sempre caricati in get_agent
+    "core": ["agent.md"],                  // sempre caricati in get_agent
     "extended": ["skills/<name>.md"]       // caricabili on-demand con get_skill
   },
   "mcp_servers": [              // array vuoto se non richiesti
@@ -210,10 +211,46 @@ npx @modelcontextprotocol/inspector python -m main
 | `HOST` | No | `0.0.0.0` | Host su cui uvicorn ascolta |
 | `PORT` | No | `8000` | Porta su cui uvicorn ascolta |
 
+## Formato agent.md (custom agent)
+
+Il file core di ogni agente usa il formato **custom agent** di VS Code: frontmatter YAML seguito da body markdown strutturato per fasi.
+
+```markdown
+---
+name: <id-agente>          # deve corrispondere all'id in agent.json
+description: >             # mostrato nella sidebar VS Code e in list_agents()
+  Descrizione dell'agente.
+tools: ['read', 'todo']    # tool strettamente necessari
+argument-hint: "..."       # facoltativo — argomento atteso dall'agente
+---
+
+## Ruolo e obiettivo
+<chi è, cosa produce, lingua di comunicazione>
+
+> **Regole assolute**
+> Vincoli non negoziabili.
+
+## Fasi
+
+### Fase 0 — Presentazione
+All'avvio, presentati indicando nome e capacità principali.
+
+### Fase 1 — ...
+<istruzioni operative per fase>
+
+## Output
+<tabella o lista dei file/risultati prodotti>
+```
+
+**Linee guida `tools`:**
+- Agenti read-only: `['read', 'todo']`
+- Agenti che scrivono file: aggiungere `'write', 'edit'`
+- Agenti che eseguono comandi shell: aggiungere `'execute'`
+
 ## Aggiungere un nuovo agente
 
 1. Crea la cartella `agents/<agent-id>/` — l'ID deve corrispondere esattamente al nome cartella
-2. Scrivi `agent.json` seguendo lo schema (vedi agenti esistenti come riferimento)
-3. Scrivi `system-prompt.md` con le istruzioni principali dell'agente
+2. Scrivi `agent.json` con `"format": "custom-agent"` e `"core": ["agent.md"]` (vedi agenti esistenti)
+3. Scrivi `agent.md` con frontmatter YAML + body strutturato per fasi (vedi sezione precedente)
 4. Aggiungi le skills in `skills/<nome>.md` e referenziale in `agent.json`
 5. Apri una Pull Request — la GitHub Action validerà automaticamente la struttura prima del merge
