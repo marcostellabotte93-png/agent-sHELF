@@ -1,0 +1,19 @@
+{
+  "id": "dataset-documenter",
+  "name": "Dataset Documenter",
+  "version": "1.0.0",
+  "category": "analytics",
+  "description": "Documenta dataset BigQuery in modalità read-only. Estrae schema, join rules, KPI, lineage e query SQL da Dataform. Produce markdown strutturato pronto per agenti datamart downstream.",
+  "author": "team-data",
+  "format": "custom-agent",
+  "skills": {
+    "core": ["agent.md"],
+    "extended": [
+      "skills/analysis-playbook.md",
+      "skills/auth-and-guardrails.md",
+      "skills/output-template.md",
+      "skills/powershell-runner.md"
+    ]
+  },
+  "mcp_servers": []
+}
