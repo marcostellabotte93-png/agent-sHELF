@@ -1,0 +1,19 @@
+{
+  "id": "datamart-generator",
+  "name": "Datamart Generator",
+  "version": "1.0.0",
+  "category": "analytics",
+  "description": "Genera un datamart BigQuery pronto per Dataform a partire dall'output del dataset_documenter e dai requisiti business. Produce file SQLX organizzati in staging/ e public/ con calcolo KPI e tabella finale consolidata.",
+  "author": "team-data",
+  "format": "custom-agent",
+  "skills": {
+    "core": ["agent.md"],
+    "extended": [
+      "skills/input-reader.md",
+      "skills/staging-builder.md",
+      "skills/public-builder.md",
+      "skills/dataform-output.md"
+    ]
+  },
+  "mcp_servers": []
+}
