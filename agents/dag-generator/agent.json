@@ -1,0 +1,21 @@
+{
+  "id": "dag-generator",
+  "name": "DAG Generator",
+  "version": "1.0.0",
+  "category": "engineering",
+  "description": "Genera DAG Airflow coerenti con i template del repository, guidando l'utente con domande sul tipo DAG, variabili richieste, config multi-environment e validazione finale.",
+  "author": "team-data",
+  "format": "custom-agent",
+  "skills": {
+    "core": [
+      "agent.md"
+    ],
+    "extended": [
+      "skills/input-collector.md",
+      "skills/template-reviewer.md",
+      "skills/dag-generator.md",
+      "skills/final-validator.md"
+    ]
+  },
+  "mcp_servers": []
+}

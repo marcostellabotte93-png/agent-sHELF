@@ -24,6 +24,7 @@ Copilot Agent Mode  ←→  MCP Server (locale)  ←→  GitHub API  ←→  age
 | ID | Nome | Categoria | Descrizione |
 |----|------|-----------|-------------|
 | [`code-reviewer`](agents/code-reviewer/README.md) | Code Reviewer | engineering | Revisione codice con focus su qualità, sicurezza e best practice |
+| [`dag-generator`](agents/dag-generator/README.md) | DAG Generator | engineering | Generazione guidata di DAG Airflow basati sui template del repository corrente |
 | [`looker-analyst`](agents/looker-analyst/README.md) | Looker Analyst | analytics | Analisi dati su Looker con focus su metriche business |
 | [`notion-writer`](agents/notion-writer/README.md) | Notion Writer | writing | Creazione e aggiornamento di pagine Notion con struttura coerente |
 
